@@ -1,0 +1,209 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		26FD6B7014B8D68A0058AF4B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26FD6B6F14B8D68A0058AF4B /* main.cpp */; };
+		26FD6B7214B8D68A0058AF4B /* LLVMForth.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 26FD6B7114B8D68A0058AF4B /* LLVMForth.1 */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		26FD6B6914B8D68A0058AF4B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				26FD6B7214B8D68A0058AF4B /* LLVMForth.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		26FD6B6B14B8D68A0058AF4B /* LLVMForth */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LLVMForth; sourceTree = BUILT_PRODUCTS_DIR; };
+		26FD6B6F14B8D68A0058AF4B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		26FD6B7114B8D68A0058AF4B /* LLVMForth.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = LLVMForth.1; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		26FD6B6814B8D68A0058AF4B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		26FD6B6014B8D6890058AF4B = {
+			isa = PBXGroup;
+			children = (
+				26FD6B6E14B8D68A0058AF4B /* LLVMForth */,
+				26FD6B6C14B8D68A0058AF4B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		26FD6B6C14B8D68A0058AF4B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				26FD6B6B14B8D68A0058AF4B /* LLVMForth */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		26FD6B6E14B8D68A0058AF4B /* LLVMForth */ = {
+			isa = PBXGroup;
+			children = (
+				26FD6B6F14B8D68A0058AF4B /* main.cpp */,
+				26FD6B7114B8D68A0058AF4B /* LLVMForth.1 */,
+			);
+			path = LLVMForth;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		26FD6B6A14B8D68A0058AF4B /* LLVMForth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 26FD6B7514B8D68A0058AF4B /* Build configuration list for PBXNativeTarget "LLVMForth" */;
+			buildPhases = (
+				26FD6B6714B8D68A0058AF4B /* Sources */,
+				26FD6B6814B8D68A0058AF4B /* Frameworks */,
+				26FD6B6914B8D68A0058AF4B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LLVMForth;
+			productName = LLVMForth;
+			productReference = 26FD6B6B14B8D68A0058AF4B /* LLVMForth */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		26FD6B6214B8D6890058AF4B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = "Bright Solutions";
+			};
+			buildConfigurationList = 26FD6B6514B8D6890058AF4B /* Build configuration list for PBXProject "LLVMForth" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 26FD6B6014B8D6890058AF4B;
+			productRefGroup = 26FD6B6C14B8D68A0058AF4B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				26FD6B6A14B8D68A0058AF4B /* LLVMForth */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		26FD6B6714B8D68A0058AF4B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26FD6B7014B8D68A0058AF4B /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		26FD6B7314B8D68A0058AF4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		26FD6B7414B8D68A0058AF4B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		26FD6B7614B8D68A0058AF4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		26FD6B7714B8D68A0058AF4B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		26FD6B6514B8D6890058AF4B /* Build configuration list for PBXProject "LLVMForth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26FD6B7314B8D68A0058AF4B /* Debug */,
+				26FD6B7414B8D68A0058AF4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		26FD6B7514B8D68A0058AF4B /* Build configuration list for PBXNativeTarget "LLVMForth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				26FD6B7614B8D68A0058AF4B /* Debug */,
+				26FD6B7714B8D68A0058AF4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 26FD6B6214B8D6890058AF4B /* Project object */;
+}
