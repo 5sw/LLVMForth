@@ -89,22 +89,6 @@ intptr_t pop();
 void push( intptr_t value );
 
 extern "C" {
-	void add();
-	void add()
-	{
-		intptr_t a = pop();
-		intptr_t b = pop();
-		push( a + b );
-	}
-	
-	void sub();
-	void sub()
-	{
-		intptr_t a = pop();
-		intptr_t b = pop();
-		push( b - a );
-	}
-	
 	void swap();
 	void swap()
 	{
@@ -118,7 +102,7 @@ extern "C" {
 
 std::vector<intptr_t> stack;
 
-intptr_t pop()
+inline __attribute__((always_inline)) intptr_t pop() 
 {
 	if (stack.empty()) {
 		std::cerr << "Stack underflow" << std::endl;
@@ -130,7 +114,7 @@ intptr_t pop()
 	return last;
 }
 
-void push( intptr_t value )
+inline __attribute__((always_inline))  void push( intptr_t value )
 {
 	stack.push_back( value );
 }
@@ -211,6 +195,42 @@ void interpret()
 Word currentWord;
 std::string currentName;
 
+llvm::Type *WordType();
+
+llvm::Type *WordType()
+{
+	static llvm::Type *wordType = NULL;
+	if (wordType == NULL) {
+		wordType = llvm::Type::getInt64Ty( llvm::getGlobalContext() );
+	}
+	return wordType;
+}
+
+
+llvm::Value *cpop();
+
+llvm::Value *cpop()
+{
+	static llvm::Constant *getFunc = NULL;
+	if (getFunc == NULL) {
+		getFunc = module->getOrInsertFunction( "get", WordType(), NULL );
+	}
+	return builder->CreateCall( getFunc );
+}
+
+void cpush( llvm::Value *value );
+
+void cpush( llvm::Value *value )
+{
+	static llvm::Constant *litFunc = NULL;
+	if (litFunc == NULL) {
+		litFunc = module->getOrInsertFunction( "lit", llvm::Type::getVoidTy( llvm::getGlobalContext() ), WordType(), NULL );
+	}
+	builder->CreateCall( litFunc, value );
+}
+
+llvm::FunctionPassManager *fpm = NULL;
+
 extern "C" {
 	
 	void docol();
@@ -234,12 +254,32 @@ extern "C" {
 	void done();
 	void done()
 	{
-		executing = true;
 		builder->CreateRetVoid();
+		
+		llvm::Function *func = builder->GetInsertBlock()->getParent();
+
 		delete builder;
 		builder = NULL;
+
 		
+		if (fpm == NULL) {
+			fpm = new llvm::FunctionPassManager( module );
+			fpm->add( new llvm::TargetData( *engine->getTargetData() ) );
+			fpm->add( llvm::createBasicAliasAnalysisPass() );
+			fpm->add( llvm::createInstructionCombiningPass() );
+			fpm->add( llvm::createReassociatePass() );
+			fpm->add( llvm::createGVNPass() );
+			fpm->add( llvm::createCFGSimplificationPass() );
+			fpm->doInitialization();
+		}
+		
+		fpm->run( *func );
+
+		func->dump();
+		llvm::verifyFunction( *func );
+
 		dictionary[currentName] = currentWord;
+		executing = true;
 		
 		module->dump();
 	}
@@ -256,13 +296,20 @@ extern "C" {
 		push( value );
 	}
 
+	intptr_t get();
+	intptr_t get()
+	{
+		return pop();
+	}
+
 	void literal()
 	{
-		intptr_t value = pop();
-		llvm::Constant *litFunc = module->getOrInsertFunction( "lit", llvm::Type::getVoidTy( llvm::getGlobalContext() ), llvm::Type::getInt64Ty( llvm::getGlobalContext() ), NULL );
-		llvm::Constant *constant = llvm::Constant::getIntegerValue( llvm::Type::getInt64Ty( llvm::getGlobalContext() ), llvm::APInt( 64, value, true ) );
+		if (executing) return;
 		
-		builder->CreateCall( litFunc, constant );
+		intptr_t value = pop();
+		
+		cpush( builder->getInt64( value ) );
+		//		cpush( llvm::Constant::getIntegerValue( WordType(), llvm::APInt( 64, value, true ) ) );
 	}
 	
 	void lbrac();
@@ -302,9 +349,162 @@ extern "C" {
 		intptr_t value = pop();
 		*(intptr_t *)addr = value;
 	}
+	
+	void cadd();
+	void cadd()
+	{
+		if (executing) {
+			push( pop() + pop() );
+		} else {
+			llvm::Value *a = cpop();
+			llvm::Value *b = cpop();
+			cpush( builder->CreateBinOp( llvm::Instruction::Add, a, b ) );
+		}
+	}
+	
+	void csub();
+	void csub()
+	{
+		if (executing) {
+			push( pop() - pop() );
+		} else {
+			llvm::Value *a = cpop();
+			llvm::Value *b = cpop();
+			cpush( builder->CreateBinOp( llvm::Instruction::Sub, a, b ) );
+		}
+	}
+	
+	void cdup();
+	void cdup()
+	{
+		if (executing) {
+			push( stack.back() );
+		} else {
+			auto val = cpop();
+			cpush( val );
+			cpush( val );
+		}
+	}
+	
+	void cmul();
+	void cmul()
+	{
+		if (executing) {
+			push( pop() * pop() );
+		} else {
+			cpush( builder->CreateBinOp( llvm::Instruction::Mul, cpop(), cpop() ) );
+		}
+	}
+	
+	void find();
+	void find()
+	{
+		intptr_t len = pop();
+		char *str = (char *)pop();
+		
+		std::string name( str, str + len );
+		auto it = dictionary.find( name );
+		if (it == dictionary.end()) {
+			push( 0 );
+		} else {
+			push( (intptr_t)&it->second );
+		}
+	}
+	
+	void fword();
+	void fword()
+	{
+		static char buf[32];
+		std::string result = word();
+		std::copy( result.begin(), result.end(), buf );
+		push( (intptr_t)&buf );
+		push( result.length() );
+	}
+	
+	void toxt();
+	void toxt()
+	{
+		Word *w = (Word *)pop();
+		push( (intptr_t)w->function );
+	}
+	
+	void execute();
+	void execute()
+	{
+		llvm::Function *func = (llvm::Function *)pop();
+		
+		void (*funcPtr)() = (void (*)())engine->getPointerToFunction( func );
+		funcPtr();
+	}
+	
+	void tic();
+	void tic()
+	{
+		fword();
+		find();
+		toxt();
+		execute();
+	}
 }
 
+struct IfBlocks {
+	llvm::BasicBlock *endBlock;
+	llvm::BasicBlock *trueBlock;
+	llvm::BasicBlock *falseBlock;
+};
 
+std::vector<IfBlocks> ifstack;
+
+extern "C" {
+	
+	void f_if();
+	void f_if() 
+	{
+		if (executing) return;
+		
+		llvm::LLVMContext &c = llvm::getGlobalContext();
+		
+		llvm::Function *func = builder->GetInsertBlock()->getParent();
+		
+		IfBlocks blocks;
+		blocks.trueBlock = llvm::BasicBlock::Create( c, "true", func  );
+		blocks.falseBlock = llvm::BasicBlock::Create( c, "false", func );
+		blocks.endBlock = llvm::BasicBlock::Create( c, "cont", func );
+		
+		llvm::IRBuilder<> tempBuilder( blocks.trueBlock );
+		tempBuilder.CreateBr( blocks.endBlock );
+		
+		tempBuilder.SetInsertPoint( blocks.falseBlock );
+		tempBuilder.CreateBr( blocks.endBlock );
+		
+		llvm::Value *cond = builder->CreateICmp( llvm::CmpInst::ICMP_NE, cpop(), builder->getInt64( 0 ) );
+		builder->CreateCondBr( cond, blocks.trueBlock, blocks.falseBlock );
+		
+		builder->GetInsertBlock()->getInstList().erase( builder->saveIP().getPoint(), builder->GetInsertBlock()->end() );
+		
+		ifstack.push_back( blocks );
+		
+		builder->SetInsertPoint( blocks.trueBlock->getTerminator() );
+	}
+	
+	void f_else();
+	void f_else()
+	{
+		builder->SetInsertPoint( ifstack.back().falseBlock->getTerminator() );
+	}
+	
+	void f_endif();
+	void f_endif()
+	{
+		builder->SetInsertPoint( ifstack.back().endBlock );
+		ifstack.pop_back();
+		
+		if (!ifstack.empty()) {
+			auto ip = builder->CreateBr( ifstack.back().endBlock );
+			builder->SetInsertPoint( ip );
+		}
+	}
+}
 
 int main (int argc, const char * argv[])
 {
@@ -315,11 +515,12 @@ int main (int argc, const char * argv[])
 	module = new llvm::Module( "forth", Context );
 
 	install_word( "dump_stack" );
-	install_word( "+", "add" );
-	install_word( "-", "sub" );
+	install_word( "+", "cadd", true );
+	install_word( "-", "csub", true );
+	install_word( "*", "cmul", true );
 	install_word( "swap" );
 	install_word( "drop" );
-	install_word( "dup", "forth_dup" );
+	install_word( "dup", "cdup", true );
 	install_word( ":", "docol" );
 	install_word( ";", "done", true );
 	install_word( "[", "lbrac", true );
@@ -329,6 +530,15 @@ int main (int argc, const char * argv[])
 	install_word( "@", "load" );
 	install_word( "!", "store" );
 	install_word( "immediate", true );
+	install_word( "'", "tic", false );
+	install_word( "execute" );
+	install_word( "find" );
+	install_word( "word", "fword" );
+	install_word( "if", "f_if", true );
+	install_word( "else", "f_else", true );
+	install_word( "then", "f_endif", true );
+	install_word( "endif", "f_endif", true );
+	install_word( ">xt", "toxt" );
 	
 	for (;;) interpret();
 	
